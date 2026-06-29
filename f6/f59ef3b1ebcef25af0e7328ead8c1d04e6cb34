@@ -1,0 +1,27 @@
+rulesets/default-branch.json
+  s_daf186a10ceb79::t_910a75db57a3b7 1-26
+scripts/apply-rulesets.sh
+  s_daf186a10ceb79::t_ad9bd59392f095 1-26
+scripts/audit.mjs
+  s_daf186a10ceb79::t_fe0fb9e0808955 1-50
+README.md
+  s_daf186a10ceb79::t_76bbde1de4a4e8 2-56
+CONFORMANCE.md
+  s_daf186a10ceb79::t_515205ff9bc818 1-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f6f59ef3b1ebcef25af0e7328ead8c1d04e6cb34",
+  "prompts": {},
+  "sessions": {
+    "s_daf186a10ceb79": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4b12e51a-0fe8-4a34-b79d-f09c5a08f4ef",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
