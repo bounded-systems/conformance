@@ -1,0 +1,21 @@
+# The one workflow per repo. Copy to .github/workflows/standard.yml, delete the
+# repo's bespoke ci.yml, and set the inputs for this repo. All logic lives in the
+# shared reusable workflow (bounded-systems/.github), so the org updates in one place.
+#
+# Pin the reusable workflow to a SHA (org policy). Latest: d43c3280588ef05f4ead43426db1091d4cb8f520
+# Dependabot keeps the pin current once configured.
+name: standard
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  standard:
+    uses: bounded-systems/.github/.github/workflows/repo-standard.yml@d43c3280588ef05f4ead43426db1091d4cb8f520
+    with:
+      security: true                 # OSV-Scanner (report-only) + dependency-review
+      test: true                     # set runtime + test-command below; false to skip
+      runtime: bun                   # bun | deno | node | nix | none
+      test-command: "bun install --frozen-lockfile && bun test"

@@ -70,3 +70,23 @@ The through-line: the org **standardizes by template (drifts) and under-enforces
 supply-chain**. Both are fixed by the same move it already uses for deploy —
 **derive from shared reusable workflows + enforce with required workflows + the
 branch ruleset** — which is the "everything is a derivation" principle applied to CI.
+
+---
+
+## Update — normalization shipped (2026-06-29)
+
+The "derive not copy" fix is built and proven:
+- **`bounded-systems/.github` → `repo-standard.yml`** — one reusable workflow, opt-in
+  inputs (`security`, `test` + `runtime`/`test-command`). Security baseline = OSV
+  (report-only) + dependency-review (report-only), copied from prx's proven SHA-pinned
+  workflows, generalized language-agnostic.
+- **[`templates/standard.yml`](templates/standard.yml)** — the single thin caller each
+  repo drops in (and deletes its bespoke `ci.yml`).
+- **First adoption: `cas`** — replaced `ci.yml` with the caller; all three jobs
+  (`osv` / `dependency-review` / `test`) green through the shared workflow.
+
+**Rollout:** migrate repos to the caller (delete bespoke `ci.yml`, add `standard.yml`
+with this repo's `runtime`/`test-command`). Each migration moves one repo from a
+drifting copy to the derived standard — and turns on the security baseline it lacked
+(closing the 4/72 gap one repo at a time). The audit (`scripts/audit.mjs`) + a future
+"has standard.yml" check measure progress.
