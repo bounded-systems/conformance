@@ -1,0 +1,23 @@
+{
+  "name": "required-baseline",
+  "target": "branch",
+  "enforcement": "disabled",
+  "conditions": {
+    "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] },
+    "repository_name": { "include": ["~ALL"], "exclude": [] }
+  },
+  "rules": [
+    {
+      "type": "workflows",
+      "parameters": {
+        "workflows": [
+          {
+            "repository_id": 1267680368,
+            "path": ".github/workflows/required-baseline.yml",
+            "ref": "refs/heads/main"
+          }
+        ]
+      }
+    }
+  ]
+}

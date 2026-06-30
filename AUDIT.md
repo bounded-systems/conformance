@@ -90,3 +90,21 @@ with this repo's `runtime`/`test-command`). Each migration moves one repo from a
 drifting copy to the derived standard — and turns on the security baseline it lacked
 (closing the 4/72 gap one repo at a time). The audit (`scripts/audit.mjs`) + a future
 "has standard.yml" check measure progress.
+
+---
+
+## Update — enforcement wired (2026-06-30)
+
+- **CI normalization rolled out: 42 repos** migrated `ci.yml` → the thin `standard.yml`
+  caller (bun/deno/node/nix/rust), each verified green. Declined (would regress):
+  `dev-contracts` (mise/trunk), `string-audit` (submodules + daemon pipeline), `prx`
+  (own full suite).
+- **Enforced security floor:** `.github/workflows/required-baseline.yml` (OSV +
+  dependency-review, report-only) + org ruleset `required-baseline`
+  ([rulesets/required-baseline.json](rulesets/required-baseline.json), a `workflows`
+  rule). Injects the scan on **every** repo's PRs — adopted, un-adopted, and future —
+  not just opt-in. Shipped **`enforcement: disabled`**; flip to `active` to require it.
+
+Net: drift→derivation for the bulk of repos, plus an enforcement lever that covers the
+long tail. Re-run `scripts/audit.mjs` to watch governance climb; `apply-rulesets.sh`
+owns both rulesets as code.
