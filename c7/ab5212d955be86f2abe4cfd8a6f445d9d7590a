@@ -1,0 +1,21 @@
+rulesets/required-baseline.json
+  s_daf186a10ceb79::t_6bf536a0edaa57 1-23
+AUDIT.md
+  s_daf186a10ceb79::t_4a9ea054ed5a3d 93-110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "c7ab5212d955be86f2abe4cfd8a6f445d9d7590a",
+  "prompts": {},
+  "sessions": {
+    "s_daf186a10ceb79": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4b12e51a-0fe8-4a34-b79d-f09c5a08f4ef",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
