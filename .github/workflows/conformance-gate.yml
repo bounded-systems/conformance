@@ -2,19 +2,19 @@ name: conformance-gate
 
 # Cross-repo drift gate — conformance's first workflow. FAILS a PR (and the daily
 # audit) when @bounded-systems/guest-room's declared contract or exported surface
-# drifts from what conformance records. Two read-only checks (scripts/gate/):
+# drifts from what conformance records. Two read-only checks (scripts/gate/),
+# both delegated to the shared @bounded-systems/drift-gate engine:
 #   descriptor — trellis.json proof claims vs the pins in guest-room's README
-#   surface    — mod.ts's `deno doc` surface vs the checked-in golden
+#   surface    — mod.ts's exported surface (ts-morph) vs the checked-in golden
 #
 # Token posture: reads PUBLIC guest-room source via checkout, so it needs only
 # `contents: read` — NO org-admin App token (contrast scripts/audit.mjs, which
 # needs one for `gh api .../rulesets`).
 #
-# Deno is pinned to gate.config.json → deno.pinnedInCI (deliberately NOT the
-# org-standard `v2.x`): the surface check diffs `deno doc --json` output against a
-# golden, and that JSON schema can shift across deno minors. Bumping deno here is
-# a deliberate step — bump the pin, regenerate the golden (`deno task
-# surface:update`), and commit both.
+# Deno runs the org-standard `v2.x`: the surface projection is now produced by
+# ts-morph (pinned via drift-gate's typescript dependency, recorded in the
+# golden's `_generated.typescript`), so it no longer depends on the deno version
+# the way the old `deno doc --json` diff did.
 
 on:
   pull_request:
@@ -51,10 +51,10 @@ jobs:
           # audit catches drift the moment guest-room merges it. To decouple a
           # conformance PR's status from guest-room's mutable HEAD, pin a `ref:`
           # (e.g. gate.config.json's rev) here and keep HEAD-tracking on schedule.
-      - name: Setup Deno (pinned — see gate.config.json deno.pinnedInCI)
+      - name: Setup Deno (org-standard v2.x)
         uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 # v2.0.4
         with:
-          deno-version: v2.1.4
+          deno-version: v2.x
       - name: Run the gate (descriptor + surface)
         # Resolves _guest-room via gate.config.json localPath; exits non-zero on drift.
         run: deno task gate

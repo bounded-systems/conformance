@@ -1,3 +1,7 @@
 # CI checks guest-room out here (see .github/workflows/conformance-gate.yml);
 # never commit the vendored source.
 _guest-room/
+
+# deno's nodeModulesDir:"auto" vendors npm deps here (drift-gate pulls ts-morph);
+# deno.lock IS committed for reproducibility, node_modules is not.
+node_modules/

@@ -1,12 +1,14 @@
 // Conformance cross-repo drift gate.
 //
 // Unlike scripts/audit.mjs (which reports and always exits 0), this FAILS
-// (exit 1) on drift. Two read-only checks against @bounded-systems/guest-room:
+// (exit 1) on drift. Two read-only checks against @bounded-systems/guest-room,
+// both delegated to the shared @bounded-systems/drift-gate engine so conformance
+// and trellis run a single source of truth:
 //
 //   Check 1 (descriptor) — trellis.json proof claims: each provenBy file exists
 //            and its git blob hash matches the pin in guest-room's generated
 //            README claims table.
-//   Check 2 (surface)    — mod.ts's exported surface (deno doc) matches the
+//   Check 2 (surface)    — mod.ts's exported surface (ts-morph) matches the
 //            checked-in golden.
 //
 // guest-room is read-only here. This is the external org-governance twin of the
@@ -18,13 +20,13 @@
 //   deno task gate:surface                  # Check 2 only
 //   deno task gate --guest-room=/path/to/gr
 import {
+  checkDescriptor,
   type CheckResult,
-  type GateConfig,
-  parseArgs,
-  resolveGuestRoom,
-} from "./lib.ts";
-import { checkDescriptor } from "./check-descriptor.ts";
-import { checkSurface } from "./check-surface.ts";
+  checkSurface,
+} from "@bounded-systems/drift-gate";
+import { type GateConfig, parseArgs, resolveGuestRoom } from "./lib.ts";
+
+const GOLDEN = "goldens/guest-room.mod.surface.json";
 
 const args = parseArgs(Deno.args);
 const only = typeof args.only === "string" ? args.only : null;
@@ -35,9 +37,19 @@ const root = await resolveGuestRoom(args, config);
 
 const results: CheckResult[] = [];
 if (!only || only === "descriptor") {
-  results.push(await checkDescriptor(root, config));
+  results.push(
+    await checkDescriptor({
+      root,
+      trellis: config.guestRoom.trellis,
+      readme: config.guestRoom.readme,
+    }),
+  );
 }
-if (!only || only === "surface") results.push(await checkSurface(root, config));
+if (!only || only === "surface") {
+  results.push(
+    await checkSurface(`${root}/${config.guestRoom.modEntry}`, GOLDEN),
+  );
+}
 
 const lines: string[] = [
   `# conformance gate — guest-room (${root})`,
@@ -46,8 +58,9 @@ const lines: string[] = [
   "| --- | :-: | --- |",
 ];
 for (const r of results) {
+  const status = r.skipped ? "⏭️" : r.ok ? "✅" : "❌";
   lines.push(
-    `| ${r.name} | ${r.ok ? "✅" : "❌"} | ${
+    `| ${r.name} | ${status} | ${
       r.ok ? r.notes.join("; ") : `${r.failures.length} failure(s)`
     } |`,
   );
