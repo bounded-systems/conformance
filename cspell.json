@@ -4,7 +4,9 @@
   "//": "Spell gate: CI fails on any token not in the English/software dictionaries OR this `words` allowlist. Adding a term here is a REVIEWED diff — that's the gate. A promotional/nonsense token (e.g. a product name smuggled into a fixture) is not a word, so it fails unless someone adds it here, where a reviewer sees it. Keep `words` sorted; each entry should be a real project/tech term, not a brand insertion.",
   "words": [
     "devshell",
+    "endswith",
     "flakehub",
+    "gsub",
     "hooksmith",
     "ocap",
     "peercred",

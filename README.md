@@ -54,7 +54,23 @@ unprotected target or signed commits.)
 - `rulesets/*.json` — the standard, as org ruleset payloads.
 - `scripts/apply-rulesets.sh` — create/update the org rulesets from the JSON.
 - `scripts/audit.mjs` — score every repo; writes `CONFORMANCE.md`.
+- `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.
 - `cspell.json` — the spell-gate dictionary + project word allowlist.
+
+## Monitoring open PRs (org-level)
+
+Three layers, cheapest first:
+
+- **Ad-hoc:** `gh search prs --owner bounded-systems --state open` (add `--json`/`--jq`
+  for checks, mergeable, age).
+- **Saved:** bookmark <https://github.com/pulls?q=is:open+is:pr+org:bounded-systems>.
+- **Persistent:** `bash scripts/open-prs.sh` regenerates [`OPEN-PRS.md`](OPEN-PRS.md);
+  `.github/workflows/open-prs.yml` renders the same digest to the Actions run summary
+  every weekday. (A Slack post or a `fleet` panel are natural next homes.)
+
+> The digest flags **bot PRs**: with `required_signatures` active org-wide, a bot's
+> unsigned PRs can't merge unless the bot signs or is a ruleset `bypass_actor`. Watch
+> that count — it's how you catch Dependabot **security** updates stuck in the queue.
 
 ## Spell gate
 
