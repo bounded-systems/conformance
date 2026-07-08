@@ -7,17 +7,18 @@
     "trellis",
     "trellis-kit",
     "verbspec",
-    "drift-gate"
+    "drift-gate",
+    "verify"
   ],
-  "_reposNote": "The 'library' set, where 'shared code should be imported, not copied' is the governing rule. claude-box (an app repo with its own internal daemon boilerplate, and a deliberately vendored guest-room mirror) is intentionally out of scope — its duplication is a different, internal concern.",
+  "_reposNote": "The 'library' set, where 'shared code should be imported, not copied' is the governing rule — every bounded-systems repo this session has access to, except claude-box. claude-box (an app repo with its own internal daemon boilerplate, and a deliberately vendored guest-room mirror) is intentionally out of scope — its duplication is a different, internal concern. Widening further to the rest of the org is tracked in conformance#18; it needs those repos added to this session/CI's checkout access first.",
 
   "jscpd": {
-    "pattern": "**/*.ts",
-    "ignore": "**/node_modules/**,**/_*/**,**/.git/**,**/dist/**,**/*.d.ts,**/*_test.ts,**/*.test.ts",
+    "pattern": "**/*.{ts,mjs}",
+    "ignore": "**/node_modules/**,**/_*/**,**/.git/**,**/dist/**,**/*.d.ts,**/*_test.ts,**/*.test.ts,**/*_test.mjs",
     "minTokens": 40,
     "minLines": 5,
     "maxDuplicationPct": 3.0,
-    "_maxDuplicationNote": "Fail the audit if the overall duplicated-line ratio exceeds this. Current baseline across the library set is ~1.65%; the budget sits above it so it passes today but catches a regression."
+    "_maxDuplicationNote": "Fail the audit if the overall duplicated-line ratio exceeds this. Current baseline across the widened library set (adds verify + .mjs, conformance#18) is ~2.32%; the budget sits above it so it passes today but catches a regression."
   },
 
   "crossRepoAllowlist": [

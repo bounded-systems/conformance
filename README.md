@@ -10,6 +10,30 @@ repo against it. This is the *repo/governance* conformance layer:
 | **this repo** | does a **repo** meet the org governance standard? (branch rules, signing) | `conformance` |
 | [fleet](https://github.com/bounded-systems/fleet) | is a repo's CI **green right now**? | `fleet` |
 
+## Audit vs gate
+
+Two words recur across this repo's scripts and workflows, and they mean
+different things on purpose:
+
+- **audit** — reports, never blocks. Always exits 0 (or, for a CI step, is
+  never a required check). Answers "where do we stand?" without touching a
+  PR's mergeability. Its output is a checked-in snapshot (`CONFORMANCE.md`,
+  `OVERLAP.md`) — the dry run.
+- **gate** — enforces. Exits non-zero (or fails the CI step) the moment it
+  finds something wrong. Answers "can this merge?"
+
+| script / workflow | mode | exits 1 on... |
+|---|:-:|---|
+| `scripts/audit.mjs` | audit | never — always exits 0 |
+| `scripts/open-prs.sh` | audit | never — a digest, not a check |
+| `scripts/gate/gate.ts` (`conformance-gate.yml`) | gate | descriptor or surface drift |
+| `scripts/overlap/overlap.mjs` (`overlap-gate.yml`) | **both** | default = gate (any flag); `--report-only` = audit (never) |
+| `spell-gate.yml` (cspell) | gate | any token outside the dictionary/allowlist |
+| `scripts/apply-rulesets.sh` | *(mutator — not audit or gate; it writes org settings)* | — |
+
+The overlap check is the one script with both modes, wired by CI trigger: see
+"Cross-repo overlap audit" below.
+
 ## The standard
 
 [`rulesets/default-branch.json`](rulesets/default-branch.json) — the default branch
@@ -79,13 +103,13 @@ checked out side by side:
 
 - **jscpd** (the *measure*) — Type-1/2/3 clone discovery (renamed variables still
   match, unlike the byte-exact descriptor pins). Reports the overall duplication
-  ratio and every clone, and **fails** if the ratio exceeds the budget **or** a
+  ratio and every clone, and **flags** if the ratio exceeds the budget **or** a
   *cross-repo* clone appears whose repo-pair isn't in the allowlist. A cross-repo
   clone is the governance smell; the allowlist is where a deliberate, reviewed
   exception is acknowledged (with a reason and, ideally, a plan to retire it).
 - **ast-grep** (the *enforcement*) — structural rules in
   [`scripts/overlap/rules/`](scripts/overlap/rules/), seeded from what discovery
-  surfaces. **Fails** on any error-severity match. The current set guards the
+  surfaces. **Flags** any error-severity match. The current set guards the
   **drift-gate consolidation boundary** — the three engine primitives PR #14
   moved into `@bounded-systems/drift-gate` (the git-blob-hash, the
   `<!-- descriptor:claims -->` table parser, and ts-morph surface extraction)
@@ -93,17 +117,29 @@ checked out side by side:
   itself today (which it exempts), so a green rule is a consolidation that hasn't
   regressed. New rules are added as discovery surfaces more.
 
+Both tools run in **one of two modes** (see "Audit vs gate" above), same checks:
+
 ```sh
-node scripts/overlap/overlap.mjs             # both; repos are siblings (../<name>)
+node scripts/overlap/overlap.mjs                 # GATE (default): exits 1 on any flag
+node scripts/overlap/overlap.mjs --report-only   # AUDIT: always exits 0, still writes OVERLAP.md
 node scripts/overlap/overlap.mjs --only=jscpd
 node scripts/overlap/overlap.mjs --only=astgrep
 ```
 
-Runs in CI via [`.github/workflows/overlap-audit.yml`](.github/workflows/overlap-audit.yml)
-(PR + daily schedule), which checks the repos out into `_repos/`. Reads **public**
-source, so `contents: read` only. [`OVERLAP.md`](OVERLAP.md) is the checked-in
-snapshot (regenerate by running the audit); [`overlap.config.json`](overlap.config.json)
-holds the repo set, the duplication budget, and the cross-repo allowlist.
+Runs in CI via [`.github/workflows/overlap-gate.yml`](.github/workflows/overlap-gate.yml),
+which checks the repos out into `_repos/` and picks the mode by trigger: `pull_request`
+and manual runs are the **gate** (a PR can't introduce new overlap); `schedule` is the
+**audit** (`--report-only` — tracks `OVERLAP.md` daily without ever reddening `main` on
+its own, the same posture as `CONFORMANCE.md`). Reads **public** source, so
+`contents: read` only. [`overlap.config.json`](overlap.config.json) holds the repo set,
+the duplication budget, and the cross-repo allowlist.
+
+> **Repo set:** every bounded-systems repo this session has access to except
+> `claude-box` (an app repo with its own internal daemon boilerplate and a
+> deliberately vendored guest-room mirror — a different, internal concern).
+> Widening to the rest of the org is tracked in conformance#18; it needs those
+> repos wired into CI's checkout list first. The jscpd pattern covers both
+> `.ts` and `.mjs` (added for `verify`'s plain-JS source).
 
 > **Known cross-repo clone (allowlisted, deliberate):** `trellis/check/lattice.ts`
 > and `trellis-kit/mod.ts` both carry the same DFS cycle-detection helper. This is
@@ -141,11 +177,12 @@ unprotected target or signed commits.)
   `@bounded-systems/drift-gate`; `deno task gate`.
 - `goldens/` — checked-in surface snapshots the gate diffs against.
 - `gate.config.json` — what the gate points at (guest-room location).
-- `scripts/overlap/` — the cross-repo overlap audit (jscpd + ast-grep);
-  `node scripts/overlap/overlap.mjs`.
+- `scripts/overlap/` — the cross-repo overlap check (jscpd + ast-grep);
+  `node scripts/overlap/overlap.mjs` (gate mode) or `--report-only` (audit mode).
 - `overlap.config.json` — repo set, duplication budget, cross-repo allowlist.
-- `OVERLAP.md` — the overlap audit's checked-in snapshot.
-- `.github/workflows/overlap-audit.yml` — runs the overlap audit on PR + daily.
+- `OVERLAP.md` — the overlap check's checked-in snapshot.
+- `.github/workflows/overlap-gate.yml` — runs it as a gate on PR/manual, an audit
+  on the daily schedule.
 - `deno.json` — gate task runners (`gate`, `gate:descriptor`, `gate:surface`, `surface:update`).
 - `.github/workflows/conformance-gate.yml` — runs the gate on PR + daily schedule.
 - `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.

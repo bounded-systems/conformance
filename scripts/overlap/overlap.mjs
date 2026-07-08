@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Cross-repo structural-overlap audit — the fourth conformance axis.
+// Cross-repo structural-overlap check — the fourth conformance axis.
 //
 // Beyond org-ruleset drift (apply-rulesets), the per-repo scorer (audit.mjs),
 // and the drift gate (scripts/gate — contract vs code), this asks: is the same
@@ -7,17 +7,24 @@
 //
 // Two tools, run against the library repos checked out side by side:
 //   jscpd    — Type-1/2/3 clone discovery (renamed vars still match). The
-//              "measure": overall duplication ratio + a per-clone list. FAILS if
-//              the ratio exceeds the budget OR a cross-repo clone appears whose
-//              repo-pair is not allowlisted.
+//              "measure": overall duplication ratio + a per-clone list. FLAGS
+//              if the ratio exceeds the budget OR a cross-repo clone appears
+//              whose repo-pair is not allowlisted.
 //   ast-grep — structural rules seeded from what discovery finds. The
-//              "enforcement": FAILS on any error-severity rule match.
+//              "enforcement": FLAGS on any error-severity rule match.
 //
-// Unlike audit.mjs (reports, always exits 0), this Deno.exit(1)s on findings —
-// like the drift gate. Reads source read-only; product repos are never wired to
-// it. Token posture: `contents: read` only.
+// AUDIT vs GATE (see README "Audit vs gate" table) — this script has two modes,
+// same checks, different exit behavior:
+//   default        — a GATE: process.exit(1) on any flag, like scripts/gate.
+//                    Use on `pull_request`; a PR cannot introduce new overlap.
+//   --report-only  — an AUDIT: always process.exit(0), like audit.mjs. Use on
+//                    `schedule`; tracks the trend in OVERLAP.md without ever
+//                    reddening main on its own.
+// Reads source read-only; product repos are never wired to it. Token posture:
+// `contents: read` only.
 //
-//   node scripts/overlap/overlap.mjs                 # repos are siblings (../<name>)
+//   node scripts/overlap/overlap.mjs                 # repos are siblings (../<name>), gate mode
+//   node scripts/overlap/overlap.mjs --report-only   # audit mode — always exits 0
 //   node scripts/overlap/overlap.mjs --repos-dir=_repos
 //   node scripts/overlap/overlap.mjs --only=jscpd    # or --only=astgrep
 import { execFileSync } from "node:child_process";
@@ -42,6 +49,7 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const only = typeof args.only === "string" ? args.only : null;
+const reportOnly = Boolean(args["report-only"]);
 const config = JSON.parse(
   readFileSync(join(REPO_ROOT, "overlap.config.json"), "utf8"),
 );
@@ -257,7 +265,9 @@ if (astgrep) {
 }
 
 const ok = results.every((r) => r.ok);
-md.push(ok ? "✓ overlap audit passed" : "✗ overlap audit FAILED", "");
+const mode = reportOnly ? "audit — report-only" : "gate — blocking";
+md.push(`_Mode: ${mode}._`, "");
+md.push(ok ? "✓ overlap check clean" : "✗ overlap check found issues", "");
 const report = md.join("\n");
 
 // OVERLAP.md is the checked-in snapshot (like CONFORMANCE.md), regenerated on demand.
@@ -275,4 +285,6 @@ if (!ok) {
     for (const f of r.failures) console.error(`  ✗ ${f}`);
   }
 }
-process.exit(ok ? 0 : 1);
+// --report-only is a true AUDIT: always exits 0, like audit.mjs. Default is a
+// GATE: exits 1 on any issue, like scripts/gate.
+process.exit(reportOnly ? 0 : (ok ? 0 : 1));

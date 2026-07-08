@@ -1,14 +1,19 @@
-name: overlap-audit
+name: overlap-gate
 
-# Cross-repo structural-overlap audit — conformance's fourth axis (after
+# Cross-repo structural-overlap check — conformance's fourth axis (after
 # org-ruleset drift, the per-repo scorer, and the drift gate). Asks: is the same
 # STRUCTURE copy-pasted across repos that should import a shared package? Two
 # tools run against the library repos checked out side by side under _repos/:
-#   jscpd    — Type-1/2/3 clone discovery; FAILS if the duplication ratio exceeds
+#   jscpd    — Type-1/2/3 clone discovery; FLAGS if the duplication ratio exceeds
 #              the budget OR a cross-repo clone appears whose pair isn't
 #              allowlisted (see overlap.config.json).
 #   ast-grep — structural rules (scripts/overlap/rules/) seeded from what
-#              discovery finds; FAILS on any error-severity match.
+#              discovery finds; FLAGS on any error-severity match.
+#
+# AUDIT vs GATE (see README "Audit vs gate" table): `pull_request` and manual
+# runs are a GATE — a PR that introduces new overlap fails this check.
+# `schedule` is an AUDIT — always green, tracking OVERLAP.md as a trend without
+# ever reddening main on its own (CONFORMANCE.md is the same kind of dry run).
 #
 # Token posture: reads PUBLIC source via checkout, so `contents: read` only — no
 # org-admin token (contrast scripts/audit.mjs). Keep the checkout list below in
@@ -16,14 +21,14 @@ name: overlap-audit
 on:
   pull_request:
   schedule:
-    - cron: "37 6 * * *" # daily, staggered from conformance-gate (17 6)
+    - cron: "37 6 * * *" # daily audit, staggered from conformance-gate (17 6)
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: overlap-audit-${{ github.ref }}
+  group: overlap-gate-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -75,9 +80,16 @@ jobs:
           repository: bounded-systems/drift-gate
           path: _repos/drift-gate
           persist-credentials: false
+      - name: Checkout verify
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: bounded-systems/verify
+          path: _repos/verify
+          persist-credentials: false
       - name: Setup Node
         uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           node-version: 20
-      - name: Run the overlap audit (jscpd + ast-grep)
-        run: node scripts/overlap/overlap.mjs --repos-dir=_repos
+      # schedule = audit (--report-only, always green); pull_request/manual = gate (blocking).
+      - name: Run the overlap check (jscpd + ast-grep)
+        run: node scripts/overlap/overlap.mjs --repos-dir=_repos ${{ github.event_name == 'schedule' && '--report-only' || '' }}
