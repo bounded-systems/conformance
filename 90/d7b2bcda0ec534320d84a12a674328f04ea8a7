@@ -1,0 +1,29 @@
+README.md
+  s_0a07a894d9cc8f::t_0806af12b958c6 74
+  s_0a07a894d9cc8f::t_8ebd88a39c374d 71-73
+  s_0a07a894d9cc8f::t_41ff7673d01feb 57,60-70
+cspell.json
+  s_0a07a894d9cc8f::t_4d6c6596ed39c9 7,9
+.github/workflows/open-prs.yml
+  s_0a07a894d9cc8f::t_a84c8b0d6065f4 1-32
+OPEN-PRS.md
+  s_0a07a894d9cc8f::t_24590818e75506 1-90
+scripts/open-prs.sh
+  s_0a07a894d9cc8f::t_19f27023f430e1 1-41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "90d7b2bcda0ec534320d84a12a674328f04ea8a7",
+  "prompts": {},
+  "sessions": {
+    "s_0a07a894d9cc8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7263b900-7c6e-43dd-8d77-1c263d5b94b7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
