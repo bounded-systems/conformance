@@ -1,0 +1,10 @@
+{
+  "_comment": "Org Actions policy as code — the allow-listed third-party actions the org standard REQUIRES. This is the fourth org-setting conformance manages as version-controlled JSON (alongside rulesets/*.json): GitHub's 'Allow select actions' allowlist (Settings → Actions → General). scripts/apply-actions-policy.sh UNIONS `requiredPatterns` into the org's live allowlist — it never removes a pattern it doesn't know about, and never changes the allowed_actions mode — so applying it can only widen the allowlist, never break a repo's CI. github-owned + verified-creator actions are left as the org has them.",
+
+  "requiredPatterns": [
+    "ossf/scorecard-action@*",
+    "anchore/sbom-action@*"
+  ],
+
+  "_requiredPatternsNote": "Actions referenced by bounded-systems/.github's repo-standard.yml (#54) that are NOT github-owned or verified-creator, so an 'Allow select actions' org policy must list them explicitly or every caller of the new repo-standard pin fails at run creation (startup_failure) — see bounded-systems/.github#55 and conformance#19. Add a pattern here (as a reviewed diff — that's the gate) when the org standard adopts a new third-party action; use `owner/repo@*` to allow any version. Keep sorted."
+}

@@ -29,6 +29,7 @@ different things on purpose:
 | `scripts/gate/gate.ts` (`conformance-gate.yml`) | gate | descriptor or surface drift |
 | `spell-gate.yml` (cspell) | gate | any token outside the dictionary/allowlist |
 | `scripts/apply-rulesets.sh` | *(mutator — not audit or gate; it writes org settings)* | — |
+| `scripts/apply-actions-policy.sh` | *(mutator — unions the org Actions allowlist; only widens)* | — |
 
 ## The standard
 
@@ -40,6 +41,26 @@ on `.github`, generalized org-wide.)
 It is the single source of truth: edit the JSON, run `scripts/apply-rulesets.sh`,
 review in [org settings → Rules](https://github.com/organizations/bounded-systems/settings/rules).
 No hand-clicking the UI.
+
+## The Actions allowlist
+
+The **second** org setting managed as code (same principle — no UI clicking):
+GitHub's "Allow select actions" policy. [`actions-policy.json`](actions-policy.json)
+lists the third-party actions the org **standard** requires — the ones
+`bounded-systems/.github`'s `repo-standard.yml` references but that aren't
+github-owned or verified-creator (`ossf/scorecard-action`, `anchore/sbom-action`).
+If the org is on "select actions" and one of these isn't allow-listed, *every*
+caller of that reusable workflow fails at run creation (`startup_failure`) — the
+blast radius behind [`.github#55`](https://github.com/bounded-systems/.github/issues/55)
+and conformance#19.
+
+[`scripts/apply-actions-policy.sh`](scripts/apply-actions-policy.sh) applies it
+(org-admin token, like `apply-rulesets.sh`) — but **safely**: it *unions*
+`requiredPatterns` into the live allowlist, never removing a pattern it doesn't
+know about and never changing the `allowed_actions` mode. So it can only widen
+the allowlist, never break a repo's CI. `DRY_RUN=1` prints the diff. Adding a
+pattern is a reviewed diff — that's the gate. (This is the "Actions policy" half
+of the enforcement epic, conformance#7.)
 
 ## Current state
 
@@ -124,6 +145,8 @@ unprotected target or signed commits.)
 
 - `rulesets/*.json` — the standard, as org ruleset payloads.
 - `scripts/apply-rulesets.sh` — create/update the org rulesets from the JSON.
+- `actions-policy.json` — the org Actions allowlist floor (required third-party actions).
+- `scripts/apply-actions-policy.sh` — union those patterns into the live org allowlist (safe; only widens).
 - `scripts/audit.mjs` — score every repo; writes `CONFORMANCE.md`.
 - `scripts/gate/` — the cross-repo drift gate (Deno); thin glue over
   `@bounded-systems/drift-gate`; `deno task gate`.
