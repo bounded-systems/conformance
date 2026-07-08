@@ -27,7 +27,7 @@ different things on purpose:
 | `scripts/audit.mjs` | audit | never — always exits 0 |
 | `scripts/open-prs.sh` | audit | never — a digest, not a check |
 | `scripts/gate/gate.ts` (`conformance-gate.yml`) | gate | descriptor or surface drift |
-| `spell-gate.yml` (cspell) | gate | any token outside the dictionary/allowlist |
+| `standard.yml` → `repo-standard.yml` (`spell`, cspell) | gate | any token outside the dictionary/allowlist |
 | `scripts/apply-rulesets.sh` | *(mutator — not audit or gate; it writes org settings)* | — |
 | `scripts/apply-actions-policy.sh` | *(mutator — unions the org Actions allowlist; only widens)* | — |
 
@@ -205,10 +205,14 @@ whether the required-check spread is safe to activate org-wide.
 
 ## Spell gate
 
-`spell-gate.yml` runs [`cspell`](https://cspell.org): CI **fails on any token not
-in the English/software dictionaries or the `words` allowlist in `cspell.json`**.
-This catches nonsense and promotional insertions *proactively* — a smuggled
-product name isn't a word, so it fails unless someone adds it to the allowlist,
-which is a **reviewed diff** (the gate: a reviewer sees new dictionary entries and
-can reject a brand insertion). Keep `words` sorted, real project/tech terms only.
-Intended to move into `repo-standard.yml` for org-wide coverage.
+Runs via [`.github/workflows/standard.yml`](.github/workflows/standard.yml), the
+thin caller of the org's reusable
+[`repo-standard.yml`](https://github.com/bounded-systems/.github/blob/main/.github/workflows/repo-standard.yml)
+with `spell: true` ([conformance#19](https://github.com/bounded-systems/conformance/issues/19)) —
+conformance now runs the org gate instead of a standalone `spell-gate.yml`. It runs
+[`cspell`](https://cspell.org): CI **fails on any token not in the English/software
+dictionaries or the `words` allowlist in `cspell.json`**. This catches nonsense and
+promotional insertions *proactively* — a smuggled product name isn't a word, so it
+fails unless someone adds it to the allowlist, which is a **reviewed diff** (the
+gate: a reviewer sees new dictionary entries and can reject a brand insertion). Keep
+`words` sorted, real project/tech terms only.
