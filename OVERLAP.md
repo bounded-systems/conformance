@@ -4,18 +4,19 @@ Repos scanned: `guest-room`, `conformance`, `trellis`, `trellis-kit`, `verbspec`
 
 | check | status | detail |
 | --- | :-: | --- |
-| jscpd | ✅ | 1.65% dup (budget 3%), 1 cross-repo clone(s) |
+| jscpd | ✅ | 2.59% dup (budget 3%), 2 cross-repo clone(s) |
 | ast-grep | ✅ | 0 rule match(es) |
 
 ## Duplication (jscpd)
 
-Overall: **1.65%** (77/4677 lines), budget 3%.
+Overall: **2.59%** (122/4716 lines), budget 3%.
 
 ### Cross-repo clones
 
 | repos | lines | allow | files |
 | --- | :-: | :-: | --- |
-| trellis ↔ trellis-kit | 7 | ✅ | `trellis/check/lattice.ts` / `trellis-kit/mod.ts` |
+| trellis ↔ trellis-kit | 36 | ✅ | `trellis/check/lattice.ts` / `trellis-kit/mod.ts` |
+| trellis ↔ trellis-kit | 17 | ✅ | `trellis/check/lattice.ts` / `trellis-kit/mod.ts` |
 
 ### Within-repo clones (informational)
 

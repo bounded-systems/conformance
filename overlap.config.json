@@ -23,7 +23,7 @@
   "crossRepoAllowlist": [
     {
       "pair": ["trellis", "trellis-kit"],
-      "reason": "trellis/check/lattice.ts and trellis-kit/mod.ts both carry the same DFS cycle-detection / toposort helper. trellis-kit is the pure-schema SDK trellis depends on; the helper should be exported from trellis-kit and imported by trellis. Tracked, not yet extracted — remove this entry once it is."
+      "reason": "trellis/check/lattice.ts and trellis-kit/mod.ts both carry the same DFS cycle-detection helper. This clone is DELIBERATE and permanent, not a pending extraction: lattice.ts runs sealed in a Nix derivation (`deno run --no-remote`, no JSR fetch), so it cannot import the kit — it must mirror it. The kit is canonical; lattice.ts is its hermetic executor. The mirror is kept faithful by trellis/check/lattice_test.ts, which asserts (in ordinary CI, where the network is allowed) that lattice.ts's helpers equal the kit's findCycles/findMultiContractPairs. Keep this entry."
     }
   ],
   "_crossRepoAllowlistNote": "A cross-repo clone is a governance smell (two repos re-implementing the same structure). Any cross-repo clone whose {repoA,repoB} pair is NOT allowlisted here FAILS the audit. Entries are acknowledged, reviewable exceptions — each should name why it exists and, ideally, the plan to retire it. The claude-box↔guest-room vendored mirror does not appear here because claude-box is out of `repos` scope."

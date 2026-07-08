@@ -102,10 +102,14 @@ source, so `contents: read` only. [`OVERLAP.md`](OVERLAP.md) is the checked-in
 snapshot (regenerate by running the audit); [`overlap.config.json`](overlap.config.json)
 holds the repo set, the duplication budget, and the cross-repo allowlist.
 
-> **Known cross-repo clone (allowlisted):** `trellis/check/lattice.ts` and
-> `trellis-kit/mod.ts` both carry the same DFS cycle-detection / toposort helper.
-> `trellis-kit` is the pure-schema SDK `trellis` depends on — the helper should be
-> exported there and imported. Tracked in the allowlist until extracted.
+> **Known cross-repo clone (allowlisted, deliberate):** `trellis/check/lattice.ts`
+> and `trellis-kit/mod.ts` both carry the same DFS cycle-detection helper. This is
+> a *permanent* exception, not a pending extraction: `lattice.ts` runs sealed in a
+> Nix derivation (`deno run --no-remote`) and so **cannot import** the kit — it must
+> mirror it. The kit stays canonical; `lattice.ts` is its hermetic executor, and
+> `trellis/check/lattice_test.ts` keeps the mirror faithful by asserting the two
+> agree in ordinary CI. A *verified* mirror, not an asserted one — the same posture
+> as the descriptor-honesty check.
 
 ## Rollout (important — `enforcement: "disabled"` for now)
 
