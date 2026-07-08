@@ -93,6 +93,8 @@ unprotected target or signed commits.)
 - `.github/workflows/conformance-gate.yml` — runs the gate on PR + daily schedule.
 - `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.
 - `cspell.json` — the spell-gate dictionary + project word allowlist.
+- `scripts/enable-auto-merge.sh` — turn on GitHub auto-merge per repo.
+- `rulesets/merge-queue.json` — optional merge-queue rule (ships disabled).
 
 ## Monitoring open PRs (org-level)
 
@@ -108,6 +110,29 @@ Three layers, cheapest first:
 > The digest flags **bot PRs**: with `required_signatures` active org-wide, a bot's
 > unsigned PRs can't merge unless the bot signs or is a ruleset `bypass_actor`. Watch
 > that count — it's how you catch Dependabot **security** updates stuck in the queue.
+
+## Auto-merge & merge queue
+
+GitHub's **auto-merge** ("merge when green") and **merge queue** are *off* today —
+`OPEN-PRS.md` is a digest, not a GitHub queue. Turning them on takes three
+ingredients, staged to keep the blast radius contained:
+
+1. **`allow_auto_merge` per repo** — `scripts/enable-auto-merge.sh` flips it on for
+   every non-archived, non-fork repo (needs an org-admin token). Harmless alone:
+   it only makes the feature *available*.
+2. **A required check to wait for** — auto-merge does nothing without one. Activate
+   **`required-baseline.json`** (the shared workflow) by setting its `enforcement`
+   to `"active"` and re-running `apply-rulesets.sh`. Do **not** activate
+   `default-branch.json` for this yet — its `required_signatures` rule rejects
+   every unsigned bot/CI push to `main` (fleet, publishers, mint), the blast
+   radius the rollout notes warn about. Migrate those to signed commits first,
+   separately.
+3. **(Optional) a merge queue** — `rulesets/merge-queue.json` adds a serialized
+   rebase-test-merge queue (`SQUASH`, all-green grouping). Ships **disabled**;
+   activate it the same way once auto-merge is proven.
+
+Then, per PR: `gh pr merge <n> --auto --squash`. `audit.mjs` is the dry-run for
+whether the required-check spread is safe to activate org-wide.
 
 ## Spell gate
 
