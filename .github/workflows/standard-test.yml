@@ -3,8 +3,10 @@ on:
   pull_request:
 permissions:
   contents: read
+  actions: read
 jobs:
   standard:
     uses: bounded-systems/.github/.github/workflows/repo-standard.yml@60745f9bf5160811fdc3529d211ae8cffd6619ca
     with:
       security: true
+      scorecard: false
