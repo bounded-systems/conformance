@@ -1,0 +1,19 @@
+CONSOLIDATION.md
+  s_0a07a894d9cc8f::t_a5ad0038bddb0a 1-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "5aa3dfbef043e2e8f70875b5cdea63765cc36f77",
+  "prompts": {},
+  "sessions": {
+    "s_0a07a894d9cc8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7263b900-7c6e-43dd-8d77-1c263d5b94b7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
