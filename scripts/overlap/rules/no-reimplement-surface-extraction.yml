@@ -1,0 +1,28 @@
+# Seeded from the drift-gate consolidation (conformance #14): extracting a
+# module's exported TypeScript surface (via ts-morph's getExportedDeclarations)
+# used to be copy-pasted (conformance's normalize-surface.ts AND drift-gate). It
+# now lives in ONE place, @bounded-systems/drift-gate (extractSurface). This rule
+# keeps it there: any other repo walking exported declarations to build a surface
+# should import extractSurface / checkSurface instead of re-deriving the pipeline
+# (which is exactly the cross-version fragility the golden was meant to absorb once).
+#
+# Verified: today this matches exactly one file, drift-gate/src/surface.ts, which
+# is ignored below — so the rule is green until someone re-introduces a copy.
+id: no-reimplement-surface-extraction
+language: typescript
+severity: error
+message: >-
+  Surface extraction lives in @bounded-systems/drift-gate — import
+  extractSurface / checkSurface instead of walking getExportedDeclarations()
+  yourself (the duplication conformance #14 removed).
+note: >-
+  If you need ts-morph for something other than a module's exported surface, this
+  rule is too broad — narrow it or add a scoped ignore with a reason.
+rule:
+  pattern: $X.getExportedDeclarations()
+files:
+  - "**/*.ts"
+ignores:
+  - "**/drift-gate/**"
+  - "**/node_modules/**"
+  - "**/_*/**"
