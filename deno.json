@@ -1,0 +1,10 @@
+{
+  "tasks": {
+    "gate": "deno run --allow-read --allow-run --allow-env scripts/gate/gate.ts",
+    "gate:descriptor": "deno run --allow-read --allow-env scripts/gate/gate.ts --only=descriptor",
+    "gate:surface": "deno run --allow-read --allow-run --allow-env scripts/gate/gate.ts --only=surface",
+    "surface:update": "deno run --allow-read --allow-run --allow-write --allow-env scripts/gate/update-golden.ts"
+  },
+  "fmt": { "include": ["scripts/gate/"] },
+  "lint": { "include": ["scripts/gate/"] }
+}

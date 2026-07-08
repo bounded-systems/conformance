@@ -28,6 +28,11 @@ files stay in `.github-private/org/`.
    constraint:** the live rulesets are ACTIVE — the config the engine applies must match live (zero
    drift) before any apply runs from here, or an apply reverts live protection.
 4. **Wire CI** — validate on PR, scheduled drift audit (reuse the org-admin GitHub App token path).
+   - _Landed (first workflow): `.github/workflows/conformance-gate.yml` — a **cross-repo** drift gate
+     (PR + daily schedule) checking guest-room's descriptor claims and exported surface (`scripts/gate/`).
+     It is **token-free** (reads public guest-room source via checkout, `contents: read` only), distinct
+     from the org-admin App token path the ruleset engine will need. A third audit axis beyond the two
+     in item 2._
 5. **Re-run `audit.mjs`** — it last read **1/72 conformant** (rulesets were disabled). The 2026-07-08
    activation met the standard org-wide, so it should now read ~72/72 — validating the work against
    this repo's own scorer.

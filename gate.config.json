@@ -1,0 +1,12 @@
+{
+  "_comment": "Config for the cross-repo drift gate (scripts/gate/). guestRoom.rev is informational — the rev the golden was last generated against, for local reproducibility; the checked-in golden is the effective pin for the surface check. localPath is where CI checks guest-room out; local runs fall back to ../guest-room. deno.pinnedInCI must match the golden's recorded denoVersion.",
+  "guestRoom": {
+    "repo": "bounded-systems/guest-room",
+    "rev": "ae39437664543dbfefcba02aa959ee5feae6b5a1",
+    "localPath": "_guest-room",
+    "modEntry": "mod.ts",
+    "trellis": "trellis.json",
+    "readme": "README.md"
+  },
+  "deno": { "pinnedInCI": "v2.1.4" }
+}
