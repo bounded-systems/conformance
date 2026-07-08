@@ -1,0 +1,28 @@
+scripts/content-gate.sh
+  s_0a07a894d9cc8f::t_af15ebb362b17e 3-4
+  s_0a07a894d9cc8f::t_1ce15554b26202 1-2,5-41
+.github/workflows/content-gate.yml
+  s_0a07a894d9cc8f::t_a965de761510cb 1-3,5-20
+  s_0a07a894d9cc8f::t_ce8bdd2ce0fd09 4
+README.md
+  s_0a07a894d9cc8f::t_bba170b62e5087 57-63,68-69
+  s_0a07a894d9cc8f::t_483735dce1d888 64-67,70-73
+content-policy.json
+  s_0a07a894d9cc8f::t_34ea08abaeb35a 1-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "f568b0c6394f9c9f57686bc2f13a09eee5ea8ba3",
+  "prompts": {},
+  "sessions": {
+    "s_0a07a894d9cc8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7263b900-7c6e-43dd-8d77-1c263d5b94b7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
