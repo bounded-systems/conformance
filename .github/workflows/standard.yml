@@ -3,6 +3,14 @@
 # See conformance#19: this replaces conformance's own spell-gate.yml — the
 # reusable `spell` job already existed in repo-standard.yml, conformance just
 # hadn't adopted it yet (dogfooding its own recommendation).
+#
+# Pinned NEWER than the other repos' standard.yml callers (which use
+# d43c3280588ef05f4ead43426db1091d4cb8f520): that older commit predates the
+# `spell` (and `scorecard`/`sbom`/`descriptor`) inputs entirely, so passing
+# `spell: true` against it is an unknown-input startup_failure (confirmed:
+# fetched repo-standard.yml AT that SHA and it has no `spell:` in its
+# `workflow_call.inputs`). This pin is the current bounded-systems/.github
+# main HEAD as of 2026-07-08, which does define it.
 name: standard
 on:
   push:
@@ -12,7 +20,14 @@ permissions:
   contents: read
 jobs:
   standard:
-    uses: bounded-systems/.github/.github/workflows/repo-standard.yml@d43c3280588ef05f4ead43426db1091d4cb8f520
+    uses: bounded-systems/.github/.github/workflows/repo-standard.yml@60745f9bf5160811fdc3529d211ae8cffd6619ca
     with:
       security: true
       spell: true
+      # This pin's repo-standard.yml also defaults `scorecard: true` (didn't exist
+      # at the older pin the other callers use). Pinned explicitly false here to
+      # keep this change scoped to #19 (adopting `spell`) — scorecard's job needs
+      # `actions: read`, which this caller's top-level `contents: read` doesn't
+      # grant, and turning it on is a separate decision or a real repo-standard.yml
+      # to review, not a side effect of this bump.
+      scorecard: false
