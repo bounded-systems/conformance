@@ -1,0 +1,3 @@
+# CI checks guest-room out here (see .github/workflows/conformance-gate.yml);
+# never commit the vendored source.
+_guest-room/
