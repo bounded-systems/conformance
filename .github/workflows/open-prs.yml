@@ -1,0 +1,32 @@
+name: open-prs
+
+# Weekday org-level open-PR digest → the Actions run summary. The merge-queue view
+# that complements audit.mjs (governance) and fleet (CI). Mints an org-admin token
+# so it sees private-repo PRs too.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.0
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          app-id: ${{ vars.ORG_ADMIN_APP_ID }}
+          private-key: ${{ secrets.ORG_ADMIN_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Render open-PR digest
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          ORG: bounded-systems
+        run: |
+          bash scripts/open-prs.sh /tmp/open-prs.md
+          cat /tmp/open-prs.md >> "$GITHUB_STEP_SUMMARY"

@@ -1,5 +1,5 @@
 // Extract guest-room's exported symbol surface from mod.ts via `deno doc --json`
-// and normalize it into a stable, diffable projection.
+// and normalize it into a stable, comparable projection.
 //
 // deno doc emits `{ version, nodes: [...] }` (older/other deno builds may emit a
 // bare array — both are handled). Each node carries volatile fields — source
@@ -11,7 +11,7 @@
 //
 // The remaining cross-version risk is deno doc's JSON schema itself shifting
 // between deno versions; the golden records the deno version it was generated
-// with and CI pins the same one, so a deno bump is a reviewed golden regen.
+// with and CI pins the same one, so a deno bump is a reviewed golden regeneration.
 
 export interface SymbolEntry {
   name: string;

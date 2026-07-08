@@ -63,7 +63,7 @@ export async function checkDescriptor(
   }
 
   // README cites a proof file that no trellis claim backs → the generated table
-  // and the source-of-truth contract have desynced.
+  // and the source-of-truth contract have gone out of sync.
   for (const r of pins) {
     if (!claimPaths.has(r.provenBy)) {
       failures.push(

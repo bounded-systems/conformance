@@ -91,3 +91,30 @@ unprotected target or signed commits.)
 - `gate.config.json` — what the gate points at (guest-room location, pinned deno).
 - `deno.json` — gate task runners (`gate`, `gate:descriptor`, `gate:surface`, `surface:update`).
 - `.github/workflows/conformance-gate.yml` — runs the gate on PR + daily schedule.
+- `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.
+- `cspell.json` — the spell-gate dictionary + project word allowlist.
+
+## Monitoring open PRs (org-level)
+
+Three layers, cheapest first:
+
+- **Ad-hoc:** `gh search prs --owner bounded-systems --state open` (add `--json`/`--jq`
+  for checks, mergeable, age).
+- **Saved:** bookmark <https://github.com/pulls?q=is:open+is:pr+org:bounded-systems>.
+- **Persistent:** `bash scripts/open-prs.sh` regenerates [`OPEN-PRS.md`](OPEN-PRS.md);
+  `.github/workflows/open-prs.yml` renders the same digest to the Actions run summary
+  every weekday. (A Slack post or a `fleet` panel are natural next homes.)
+
+> The digest flags **bot PRs**: with `required_signatures` active org-wide, a bot's
+> unsigned PRs can't merge unless the bot signs or is a ruleset `bypass_actor`. Watch
+> that count — it's how you catch Dependabot **security** updates stuck in the queue.
+
+## Spell gate
+
+`spell-gate.yml` runs [`cspell`](https://cspell.org): CI **fails on any token not
+in the English/software dictionaries or the `words` allowlist in `cspell.json`**.
+This catches nonsense and promotional insertions *proactively* — a smuggled
+product name isn't a word, so it fails unless someone adds it to the allowlist,
+which is a **reviewed diff** (the gate: a reviewer sees new dictionary entries and
+can reject a brand insertion). Keep `words` sorted, real project/tech terms only.
+Intended to move into `repo-standard.yml` for org-wide coverage.
