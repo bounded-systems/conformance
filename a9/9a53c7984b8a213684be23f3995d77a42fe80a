@@ -1,0 +1,23 @@
+README.md
+  s_0a07a894d9cc8f::t_529d3f9df450bf 57-67
+cspell.json
+  s_0a07a894d9cc8f::t_5669f044939085 1-23
+.github/workflows/spell-gate.yml
+  s_0a07a894d9cc8f::t_e6fff7cb4291aa 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "a99a53c7984b8a213684be23f3995d77a42fe80a",
+  "prompts": {},
+  "sessions": {
+    "s_0a07a894d9cc8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7263b900-7c6e-43dd-8d77-1c263d5b94b7",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
