@@ -1,9 +1,13 @@
 {
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@bounded-systems/drift-gate": "jsr:@bounded-systems/drift-gate@^0.1.0"
+  },
   "tasks": {
-    "gate": "deno run --allow-read --allow-run --allow-env scripts/gate/gate.ts",
-    "gate:descriptor": "deno run --allow-read --allow-env scripts/gate/gate.ts --only=descriptor",
-    "gate:surface": "deno run --allow-read --allow-run --allow-env scripts/gate/gate.ts --only=surface",
-    "surface:update": "deno run --allow-read --allow-run --allow-write --allow-env scripts/gate/update-golden.ts"
+    "gate": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts",
+    "gate:descriptor": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts --only=descriptor",
+    "gate:surface": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts --only=surface",
+    "surface:update": "deno run --allow-read --allow-write --allow-env --allow-sys --allow-run=git scripts/gate/update-golden.ts"
   },
   "fmt": { "include": ["scripts/gate/"] },
   "lint": { "include": ["scripts/gate/"] }

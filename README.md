@@ -37,15 +37,19 @@ A third audit axis, beyond the two above (org-ruleset drift and the per-repo
 scorer): **does another repo's declared contract still match its code?** The
 gate in [`scripts/gate/`](scripts/gate/) checks `@bounded-systems/guest-room`
 from the outside and **fails** (exit non-zero — unlike `audit.mjs`, which only
-reports) on drift:
+reports) on drift. Both checks are delegated to the shared
+[`@bounded-systems/drift-gate`](https://jsr.io/@bounded-systems/drift-gate)
+engine — the same package [`trellis`](https://github.com/bounded-systems/trellis)
+runs as its `descriptor-honesty` check — so there is a single source of truth
+for the drift logic and conformance just points it at guest-room:
 
 - **descriptor** — every `descriptor.proof.claims[]` in guest-room's
   `trellis.json` names a `provenBy` file that exists, and that file's git blob
   hash matches the pin in guest-room's generated README claims table. This is the
   external, org-level twin of the `descriptor-kit` check guest-room runs on
   itself — enforced from here; the product repo is never wired to this gate.
-- **surface** — guest-room `mod.ts`'s exported symbols (`deno doc --json`,
-  normalized) match the checked-in golden
+- **surface** — guest-room `mod.ts`'s exported symbols (extracted with the
+  TypeScript compiler via `ts-morph`) match the checked-in golden
   [`goldens/guest-room.mod.surface.json`](goldens/guest-room.mod.surface.json).
   The golden is the pin; an intentional API change is acknowledged by
   regenerating it and committing the reviewable diff.
@@ -59,9 +63,10 @@ deno task surface:update                # regenerate the golden after an intenti
 
 Runs in CI via [`.github/workflows/conformance-gate.yml`](.github/workflows/conformance-gate.yml)
 (PR + daily schedule). It reads **public** guest-room source, so it needs only
-`contents: read` — no org-admin token. Deno is pinned (see `gate.config.json` →
-`deno.pinnedInCI`) because the surface check diffs `deno doc` JSON, whose schema
-can shift across deno versions; a deno bump means regenerating the golden.
+`contents: read` — no org-admin token. CI runs the org-standard Deno `v2.x`: the
+surface projection now comes from `ts-morph` (pinned via drift-gate's TypeScript
+dependency and recorded in the golden's `_generated.typescript`), so it no longer
+depends on the deno version the way the old `deno doc --json` diff did.
 
 ## Rollout (important — `enforcement: "disabled"` for now)
 
@@ -86,9 +91,10 @@ unprotected target or signed commits.)
 - `rulesets/*.json` — the standard, as org ruleset payloads.
 - `scripts/apply-rulesets.sh` — create/update the org rulesets from the JSON.
 - `scripts/audit.mjs` — score every repo; writes `CONFORMANCE.md`.
-- `scripts/gate/` — the cross-repo drift gate (Deno); `deno task gate`.
+- `scripts/gate/` — the cross-repo drift gate (Deno); thin glue over
+  `@bounded-systems/drift-gate`; `deno task gate`.
 - `goldens/` — checked-in surface snapshots the gate diffs against.
-- `gate.config.json` — what the gate points at (guest-room location, pinned deno).
+- `gate.config.json` — what the gate points at (guest-room location).
 - `deno.json` — gate task runners (`gate`, `gate:descriptor`, `gate:surface`, `surface:update`).
 - `.github/workflows/conformance-gate.yml` — runs the gate on PR + daily schedule.
 - `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.
