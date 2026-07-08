@@ -1,0 +1,83 @@
+name: overlap-audit
+
+# Cross-repo structural-overlap audit — conformance's fourth axis (after
+# org-ruleset drift, the per-repo scorer, and the drift gate). Asks: is the same
+# STRUCTURE copy-pasted across repos that should import a shared package? Two
+# tools run against the library repos checked out side by side under _repos/:
+#   jscpd    — Type-1/2/3 clone discovery; FAILS if the duplication ratio exceeds
+#              the budget OR a cross-repo clone appears whose pair isn't
+#              allowlisted (see overlap.config.json).
+#   ast-grep — structural rules (scripts/overlap/rules/) seeded from what
+#              discovery finds; FAILS on any error-severity match.
+#
+# Token posture: reads PUBLIC source via checkout, so `contents: read` only — no
+# org-admin token (contrast scripts/audit.mjs). Keep the checkout list below in
+# sync with overlap.config.json `repos`.
+on:
+  pull_request:
+  schedule:
+    - cron: "37 6 * * *" # daily, staggered from conformance-gate (17 6)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: overlap-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  overlap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden runner
+        uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411 # v2.19.4
+        with:
+          egress-policy: audit
+      - name: Checkout conformance (scripts + config)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      # The library set (overlap.config.json `repos`), each into _repos/<name>,
+      # default-branch HEAD — the audit measures drift against live source.
+      - name: Checkout guest-room
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: bounded-systems/guest-room
+          path: _repos/guest-room
+          persist-credentials: false
+      - name: Checkout conformance (into _repos)
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          path: _repos/conformance
+          persist-credentials: false
+      - name: Checkout trellis
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: bounded-systems/trellis
+          path: _repos/trellis
+          persist-credentials: false
+      - name: Checkout trellis-kit
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: bounded-systems/trellis-kit
+          path: _repos/trellis-kit
+          persist-credentials: false
+      - name: Checkout verbspec
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: bounded-systems/verbspec
+          path: _repos/verbspec
+          persist-credentials: false
+      - name: Checkout drift-gate
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: bounded-systems/drift-gate
+          path: _repos/drift-gate
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+        with:
+          node-version: 20
+      - name: Run the overlap audit (jscpd + ast-grep)
+        run: node scripts/overlap/overlap.mjs --repos-dir=_repos

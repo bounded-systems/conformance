@@ -1,0 +1,5 @@
+# ast-grep project config for the structural-overlap audit's enforcement half.
+# Rules live in ./rules and are seeded from what the jscpd discovery surfaces.
+# Run via scripts/overlap/overlap.mjs (or: ast-grep scan -c this-file <repos>).
+ruleDirs:
+  - rules

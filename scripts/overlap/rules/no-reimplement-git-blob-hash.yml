@@ -1,0 +1,26 @@
+# Seeded from the drift-gate consolidation (conformance #14): the git-blob-hash
+# primitive — SHA-1 over `blob <len>\0<bytes>` — used to be copy-pasted (drift-gate
+# AND conformance each carried one). It now lives in ONE place, the
+# @bounded-systems/drift-gate engine (`gitBlobHash`). This rule keeps it that way:
+# any other repo that re-implements `crypto.subtle.digest("SHA-1", ...)` should
+# import gitBlobHash instead. drift-gate itself (the canonical home) is exempt.
+#
+# Verified: today this pattern matches exactly one file, drift-gate/src/blob-hash.ts,
+# which is ignored below — so the rule is green until someone re-introduces a copy.
+id: no-reimplement-git-blob-hash
+language: typescript
+severity: error
+message: >-
+  SHA-1 blob hashing lives in @bounded-systems/drift-gate — import { gitBlobHash }
+  instead of re-implementing it (this is the duplication conformance #14 removed).
+note: >-
+  If you genuinely need SHA-1 for something other than a git blob hash, this rule
+  is too broad — narrow it or add a scoped ignore with a reason.
+rule:
+  pattern: crypto.subtle.digest("SHA-1", $$$ARGS)
+files:
+  - "**/*.ts"
+ignores:
+  - "**/drift-gate/**"
+  - "**/node_modules/**"
+  - "**/_*/**"

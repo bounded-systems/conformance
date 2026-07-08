@@ -68,6 +68,45 @@ surface projection now comes from `ts-morph` (pinned via drift-gate's TypeScript
 dependency and recorded in the golden's `_generated.typescript`), so it no longer
 depends on the deno version the way the old `deno doc --json` diff did.
 
+## Cross-repo overlap audit
+
+A **fourth** axis, beyond the three above: **is the same _structure_ copy-pasted
+across repos that should import a shared package instead?** Where the drift gate
+asks "does a repo's declared contract match its code," this asks "are two repos
+quietly re-implementing the same thing." Two tools in
+[`scripts/overlap/`](scripts/overlap/), run against the **library** repos
+checked out side by side:
+
+- **jscpd** (the *measure*) — Type-1/2/3 clone discovery (renamed variables still
+  match, unlike the byte-exact descriptor pins). Reports the overall duplication
+  ratio and every clone, and **fails** if the ratio exceeds the budget **or** a
+  *cross-repo* clone appears whose repo-pair isn't in the allowlist. A cross-repo
+  clone is the governance smell; the allowlist is where a deliberate, reviewed
+  exception is acknowledged (with a reason and, ideally, a plan to retire it).
+- **ast-grep** (the *enforcement*) — structural rules in
+  [`scripts/overlap/rules/`](scripts/overlap/rules/), seeded from what discovery
+  surfaces. **Fails** on any error-severity match. The first rule bans
+  re-implementing the git-blob-hash primitive anywhere but
+  `@bounded-systems/drift-gate` — the exact duplication the drift-gate dedupe
+  (PR #14) removed; the rule keeps it removed.
+
+```sh
+node scripts/overlap/overlap.mjs             # both; repos are siblings (../<name>)
+node scripts/overlap/overlap.mjs --only=jscpd
+node scripts/overlap/overlap.mjs --only=astgrep
+```
+
+Runs in CI via [`.github/workflows/overlap-audit.yml`](.github/workflows/overlap-audit.yml)
+(PR + daily schedule), which checks the repos out into `_repos/`. Reads **public**
+source, so `contents: read` only. [`OVERLAP.md`](OVERLAP.md) is the checked-in
+snapshot (regenerate by running the audit); [`overlap.config.json`](overlap.config.json)
+holds the repo set, the duplication budget, and the cross-repo allowlist.
+
+> **Known cross-repo clone (allowlisted):** `trellis/check/lattice.ts` and
+> `trellis-kit/mod.ts` both carry the same DFS cycle-detection / toposort helper.
+> `trellis-kit` is the pure-schema SDK `trellis` depends on — the helper should be
+> exported there and imported. Tracked in the allowlist until extracted.
+
 ## Rollout (important — `enforcement: "disabled"` for now)
 
 The ruleset ships **disabled**: defined and reviewable, enforcing nothing. The org is on
@@ -95,6 +134,11 @@ unprotected target or signed commits.)
   `@bounded-systems/drift-gate`; `deno task gate`.
 - `goldens/` — checked-in surface snapshots the gate diffs against.
 - `gate.config.json` — what the gate points at (guest-room location).
+- `scripts/overlap/` — the cross-repo overlap audit (jscpd + ast-grep);
+  `node scripts/overlap/overlap.mjs`.
+- `overlap.config.json` — repo set, duplication budget, cross-repo allowlist.
+- `OVERLAP.md` — the overlap audit's checked-in snapshot.
+- `.github/workflows/overlap-audit.yml` — runs the overlap audit on PR + daily.
 - `deno.json` — gate task runners (`gate`, `gate:descriptor`, `gate:surface`, `surface:update`).
 - `.github/workflows/conformance-gate.yml` — runs the gate on PR + daily schedule.
 - `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.

@@ -1,0 +1,30 @@
+{
+  "_comment": "Config for the cross-repo structural-overlap audit (scripts/overlap/). This is the FOURTH conformance axis: beyond org-ruleset drift, the per-repo scorer, and the drift gate, it asks 'is the same structure copy-pasted across repos that should import a shared package instead?'. Two tools: jscpd (Type-1/2/3 clone discovery — renamed vars still match; the measure) and ast-grep (structural rules seeded from what discovery finds; the enforcement). CI checks the `repos` out read-only next to each other and runs both. Product repos are never wired to this; it is enforced from here.",
+
+  "repos": [
+    "guest-room",
+    "conformance",
+    "trellis",
+    "trellis-kit",
+    "verbspec",
+    "drift-gate"
+  ],
+  "_reposNote": "The 'library' set, where 'shared code should be imported, not copied' is the governing rule. claude-box (an app repo with its own internal daemon boilerplate, and a deliberately vendored guest-room mirror) is intentionally out of scope — its duplication is a different, internal concern.",
+
+  "jscpd": {
+    "pattern": "**/*.ts",
+    "ignore": "**/node_modules/**,**/_*/**,**/.git/**,**/dist/**,**/*.d.ts,**/*_test.ts,**/*.test.ts",
+    "minTokens": 40,
+    "minLines": 5,
+    "maxDuplicationPct": 3.0,
+    "_maxDuplicationNote": "Fail the audit if the overall duplicated-line ratio exceeds this. Current baseline across the library set is ~1.65%; the budget sits above it so it passes today but catches a regression."
+  },
+
+  "crossRepoAllowlist": [
+    {
+      "pair": ["trellis", "trellis-kit"],
+      "reason": "trellis/check/lattice.ts and trellis-kit/mod.ts both carry the same DFS cycle-detection / toposort helper. trellis-kit is the pure-schema SDK trellis depends on; the helper should be exported from trellis-kit and imported by trellis. Tracked, not yet extracted — remove this entry once it is."
+    }
+  ],
+  "_crossRepoAllowlistNote": "A cross-repo clone is a governance smell (two repos re-implementing the same structure). Any cross-repo clone whose {repoA,repoB} pair is NOT allowlisted here FAILS the audit. Entries are acknowledged, reviewable exceptions — each should name why it exists and, ideally, the plan to retire it. The claude-box↔guest-room vendored mirror does not appear here because claude-box is out of `repos` scope."
+}
