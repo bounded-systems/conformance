@@ -1,15 +1,15 @@
 # conformance — cross-repo structural-overlap audit
 
-Repos scanned: `guest-room`, `conformance`, `trellis`, `trellis-kit`, `verbspec`, `drift-gate`
+Repos scanned: `guest-room`, `conformance`, `trellis`, `trellis-kit`, `verbspec`, `drift-gate`, `verify`
 
 | check | status | detail |
 | --- | :-: | --- |
-| jscpd | ✅ | 2.59% dup (budget 3%), 2 cross-repo clone(s) |
+| jscpd | ✅ | 2.32% dup (budget 3%), 2 cross-repo clone(s) |
 | ast-grep | ✅ | 0 rule match(es) |
 
 ## Duplication (jscpd)
 
-Overall: **2.59%** (122/4716 lines), budget 3%.
+Overall: **2.32%** (122/5269 lines), budget 3%.
 
 ### Cross-repo clones
 
@@ -28,5 +28,7 @@ Overall: **2.59%** (122/4716 lines), budget 3%.
 
 _No rule matches._
 
-✓ overlap audit passed
+_Mode: gate — blocking._
+
+✓ overlap check clean
 
