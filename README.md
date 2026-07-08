@@ -49,18 +49,24 @@ GitHub's "Allow select actions" policy. [`actions-policy.json`](actions-policy.j
 lists the third-party actions the org **standard** requires — the ones
 `bounded-systems/.github`'s `repo-standard.yml` references but that aren't
 github-owned or verified-creator (`ossf/scorecard-action`, `anchore/sbom-action`).
-If the org is on "select actions" and one of these isn't allow-listed, *every*
-caller of that reusable workflow fails at run creation (`startup_failure`) — the
-blast radius behind [`.github#55`](https://github.com/bounded-systems/.github/issues/55)
-and conformance#19.
+
+> **Currently inert.** The org is on `allowed_actions: all` (every action already
+> permitted), so there is no allowlist to enforce and this changes nothing today.
+> It's **groundwork for the enforcement epic ([conformance#7](https://github.com/bounded-systems/conformance/issues/7))**:
+> tightening the org to a curated "select actions" allowlist is a real future
+> hardening, and when that happens this is the reviewed, version-controlled source
+> for the required patterns — no UI clicking. It is **not** the fix for any current
+> `startup_failure`: the spell-gate breakage in [`.github#55`](https://github.com/bounded-systems/.github/issues/55)
+> turned out to be a permission-escalation bug in `repo-standard.yml`, unrelated to
+> the allowlist (the org allows all actions).
 
 [`scripts/apply-actions-policy.sh`](scripts/apply-actions-policy.sh) applies it
 (org-admin token, like `apply-rulesets.sh`) — but **safely**: it *unions*
 `requiredPatterns` into the live allowlist, never removing a pattern it doesn't
-know about and never changing the `allowed_actions` mode. So it can only widen
-the allowlist, never break a repo's CI. `DRY_RUN=1` prints the diff. Adding a
-pattern is a reviewed diff — that's the gate. (This is the "Actions policy" half
-of the enforcement epic, conformance#7.)
+know about and never changing the `allowed_actions` mode. So while the org is on
+`all` it's a no-op, and once on `select` it can only widen the allowlist, never
+break a repo's CI. `DRY_RUN=1` prints the diff. Adding a pattern is a reviewed
+diff — that's the gate.
 
 ## Current state
 

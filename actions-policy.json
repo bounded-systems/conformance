@@ -6,5 +6,5 @@
     "anchore/sbom-action@*"
   ],
 
-  "_requiredPatternsNote": "Actions referenced by bounded-systems/.github's repo-standard.yml (#54) that are NOT github-owned or verified-creator, so an 'Allow select actions' org policy must list them explicitly or every caller of the new repo-standard pin fails at run creation (startup_failure) — see bounded-systems/.github#55 and conformance#19. Add a pattern here (as a reviewed diff — that's the gate) when the org standard adopts a new third-party action; use `owner/repo@*` to allow any version. Keep sorted."
+  "_requiredPatternsNote": "Third-party actions referenced by bounded-systems/.github's repo-standard.yml that are NOT github-owned or verified-creator. INERT TODAY: the org is on allowed_actions:all, so there's no allowlist and this enforces nothing. It's groundwork for the enforcement epic (conformance#7) — if/when the org tightens to 'select actions', these are the required patterns. NOTE: this is NOT the fix for the .github#55 spell-gate startup_failure; that was a permission-escalation bug in repo-standard.yml (sbom/scorecard jobs request more than a contents:read caller grants), unrelated to the allowlist. Add a pattern here (a reviewed diff — that's the gate) when the org standard adopts a new third-party action; use `owner/repo@*` for any version. Keep sorted."
 }
