@@ -54,3 +54,20 @@ unprotected target or signed commits.)
 - `rulesets/*.json` — the standard, as org ruleset payloads.
 - `scripts/apply-rulesets.sh` — create/update the org rulesets from the JSON.
 - `scripts/audit.mjs` — score every repo; writes `CONFORMANCE.md`.
+- `scripts/content-gate.sh` + `content-policy.json` — fail CI on disallowed
+  content (promotional / third-party branding); reactive denylist.
+
+## Content gate
+
+`content-gate.sh` fails the build if source contains a `deny_terms` entry from
+`content-policy.json` — a **reactive** denylist seeded from a real incident (a
+first-time contributor named test fixtures after their own product; de-branded in
+`verbspec#11`). It **stops re-introduction and copycats** of known offenders and
+guards against regression; it does **not** catch a novel brand on first sight —
+human review of naming on external PRs does. Runs via
+`.github/workflows/content-gate.yml`; intended to move into `repo-standard.yml`
+for org-wide coverage.
+
+> The denied terms live **only** in `content-policy.json` (which the gate skips).
+> Everything else — this README, workflows, docs — describes the policy without
+> quoting the terms, so the gate stays green.

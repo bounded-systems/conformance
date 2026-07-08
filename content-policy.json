@@ -1,0 +1,6 @@
+{
+  "description": "Content policy for the org content-gate. `deny_terms` are case-insensitive substrings that must not appear in source — a REACTIVE denylist that grows as promotional / third-party-branding insertions are caught. It stops re-introduction and copycats; it does NOT catch a novel brand on first sight (human review of naming on external PRs does). To intentionally allow a term, remove it here in a reviewed PR.",
+  "deny_terms": [
+    "xquik"
+  ]
+}
