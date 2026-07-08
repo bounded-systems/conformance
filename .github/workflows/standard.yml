@@ -1,0 +1,18 @@
+# The one workflow every repo drops in. Opts into org-standard behaviors; logic
+# lives in the reusable bounded-systems/.github/.github/workflows/repo-standard.yml.
+# See conformance#19: this replaces conformance's own spell-gate.yml — the
+# reusable `spell` job already existed in repo-standard.yml, conformance just
+# hadn't adopted it yet (dogfooding its own recommendation).
+name: standard
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  standard:
+    uses: bounded-systems/.github/.github/workflows/repo-standard.yml@d43c3280588ef05f4ead43426db1091d4cb8f520
+    with:
+      security: true
+      spell: true

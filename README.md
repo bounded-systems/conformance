@@ -149,6 +149,8 @@ unprotected target or signed commits.)
 - `deno.json` — gate task runners (`gate`, `gate:descriptor`, `gate:surface`, `surface:update`).
 - `.github/workflows/conformance-gate.yml` — runs the gate on PR + daily schedule.
 - `scripts/open-prs.sh` — org-level open-PR digest; writes `OPEN-PRS.md`.
+- `.github/workflows/standard.yml` — thin caller of the org's `repo-standard.yml`
+  (`security` + `spell`); see conformance#19.
 - `cspell.json` — the spell-gate dictionary + project word allowlist.
 - `scripts/enable-auto-merge.sh` — turn on GitHub auto-merge per repo.
 - `rulesets/merge-queue.json` — optional merge-queue rule (ships disabled).
@@ -193,10 +195,25 @@ whether the required-check spread is safe to activate org-wide.
 
 ## Spell gate
 
-`spell-gate.yml` runs [`cspell`](https://cspell.org): CI **fails on any token not
-in the English/software dictionaries or the `words` allowlist in `cspell.json`**.
-This catches nonsense and promotional insertions *proactively* — a smuggled
-product name isn't a word, so it fails unless someone adds it to the allowlist,
-which is a **reviewed diff** (the gate: a reviewer sees new dictionary entries and
-can reject a brand insertion). Keep `words` sorted, real project/tech terms only.
-Intended to move into `repo-standard.yml` for org-wide coverage.
+Runs via [`.github/workflows/standard.yml`](.github/workflows/standard.yml), the
+thin caller of the org's reusable
+[`repo-standard.yml`](https://github.com/bounded-systems/.github/blob/main/.github/workflows/repo-standard.yml)
+with `spell: true` (see conformance#19). It runs [`cspell`](https://cspell.org):
+CI **fails on any token not in the English/software dictionaries or the `words`
+allowlist in `cspell.json`**. This catches nonsense and promotional insertions
+*proactively* — a smuggled product name isn't a word, so it fails unless someone
+adds it to the allowlist, which is a **reviewed diff** (the gate: a reviewer sees
+new dictionary entries and can reject a brand insertion). Keep `words` sorted,
+real project/tech terms only.
+
+conformance used to run its own standalone `spell-gate.yml` — a near-duplicate of
+the `spell` job that already lived in `repo-standard.yml`. Since conformance
+*is* the repo that recommends promoting checks into `repo-standard.yml` for
+org-wide coverage, dogfooding it here (adopt the reusable job, retire the local
+copy) closes that loop instead of leaving conformance itself as the one holdout.
+
+The **overlap check** ([above](#cross-repo-overlap-audit)) stays a standalone
+workflow in this repo rather than moving into `repo-standard.yml`: it is
+inherently cross-repo (needs the whole library set checked out side by side,
+plus `overlap.config.json`'s budget/allowlist), which doesn't fit a generic
+per-caller job the way a single-repo check like `spell` does.
