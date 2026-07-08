@@ -85,10 +85,13 @@ checked out side by side:
   exception is acknowledged (with a reason and, ideally, a plan to retire it).
 - **ast-grep** (the *enforcement*) — structural rules in
   [`scripts/overlap/rules/`](scripts/overlap/rules/), seeded from what discovery
-  surfaces. **Fails** on any error-severity match. The first rule bans
-  re-implementing the git-blob-hash primitive anywhere but
-  `@bounded-systems/drift-gate` — the exact duplication the drift-gate dedupe
-  (PR #14) removed; the rule keeps it removed.
+  surfaces. **Fails** on any error-severity match. The current set guards the
+  **drift-gate consolidation boundary** — the three engine primitives PR #14
+  moved into `@bounded-systems/drift-gate` (the git-blob-hash, the
+  `<!-- descriptor:claims -->` table parser, and ts-morph surface extraction)
+  must not be re-implemented anywhere else. Each rule matches only drift-gate
+  itself today (which it exempts), so a green rule is a consolidation that hasn't
+  regressed. New rules are added as discovery surfaces more.
 
 ```sh
 node scripts/overlap/overlap.mjs             # both; repos are siblings (../<name>)

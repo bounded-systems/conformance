@@ -1,0 +1,28 @@
+# Seeded from the drift-gate consolidation (conformance #14): parsing a repo's
+# generated `<!-- descriptor:claims start/end -->` README table used to be
+# copy-pasted (conformance AND drift-gate each had a parseReadmeClaimsTable).
+# It now lives in ONE place, @bounded-systems/drift-gate. This rule keeps it
+# there: anything that slices the descriptor-claims block by that marker string,
+# anywhere but drift-gate, should import the engine's parseReadmeClaimsTable /
+# checkDescriptor instead.
+#
+# Verified: today this matches exactly one file, drift-gate/src/descriptor.ts,
+# which is ignored below — so the rule is green until someone re-introduces a copy.
+id: no-reimplement-descriptor-table-parser
+language: typescript
+severity: error
+message: >-
+  Parsing the descriptor claims table lives in @bounded-systems/drift-gate —
+  import parseReadmeClaimsTable / checkDescriptor instead of re-implementing the
+  `<!-- descriptor:claims -->` block parser (the duplication conformance #14 removed).
+note: >-
+  drift-gate is the canonical home for descriptor honesty checks; the product repo
+  (descriptor-kit) GENERATES this table, it does not parse it back.
+rule:
+  pattern: $X.indexOf("<!-- descriptor:claims start -->")
+files:
+  - "**/*.ts"
+ignores:
+  - "**/drift-gate/**"
+  - "**/node_modules/**"
+  - "**/_*/**"
