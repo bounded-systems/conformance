@@ -1,0 +1,30 @@
+# The one workflow every repo drops in — the thin caller of the org's reusable
+# bounded-systems/.github/.github/workflows/repo-standard.yml. The logic lives there,
+# so a pin bump updates behavior org-wide (derive, not copy). See conformance#19 / #6.
+#
+# conformance adopts its own recommendation here: the reusable `spell` job already
+# existed in repo-standard.yml — conformance just hadn't called it. This caller
+# replaces the standalone spell-gate.yml.
+#
+# Pinned to bounded-systems/.github@53efbd8a — the authority-ceiling split (.github#57).
+# That revision's repo-standard.yml floor is `contents: read`, so this caller grants
+# exactly that and nothing more. (Context: the older pin the other repos use predates
+# the `spell` input; the intermediate #54 pin @60745f9b bundled an sbom job needing
+# `contents: write`, so a `contents: read` caller could not even start it — that was
+# .github#55, fixed by the split in #57.)
+name: standard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  standard:
+    uses: bounded-systems/.github/.github/workflows/repo-standard.yml@53efbd8a2d442b6aa47c4655fe8cdc12f2468e78
+    with:
+      security: true
+      spell: true
