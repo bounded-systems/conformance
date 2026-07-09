@@ -27,6 +27,7 @@ different things on purpose:
 | `scripts/audit.mjs` | audit | never — always exits 0 |
 | `scripts/open-prs.sh` | audit | never — a digest, not a check |
 | `scripts/gate/gate.ts` (`conformance-gate.yml`) | gate | descriptor or surface drift |
+| `scripts/audit/actions.ts` (`actions-audit.yml`) | audit | never today (report-only); `--strict` exits 1 on R1a+R3 |
 | `standard.yml` → `repo-standard.yml` (`spell`, cspell) | gate | any token outside the dictionary/allowlist |
 | `scripts/apply-rulesets.sh` | *(mutator — not audit or gate; it writes org settings)* | — |
 | `scripts/apply-actions-policy.sh` | *(mutator — unions the org Actions allowlist; only widens)* | — |

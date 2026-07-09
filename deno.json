@@ -7,8 +7,10 @@
     "gate": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts",
     "gate:descriptor": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts --only=descriptor",
     "gate:surface": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts --only=surface",
-    "surface:update": "deno run --allow-read --allow-write --allow-env --allow-sys --allow-run=git scripts/gate/update-golden.ts"
+    "surface:update": "deno run --allow-read --allow-write --allow-env --allow-sys --allow-run=git scripts/gate/update-golden.ts",
+    "audit:actions": "deno run --allow-run=gh --allow-env scripts/audit/actions.ts",
+    "audit:actions:strict": "deno run --allow-run=gh --allow-env scripts/audit/actions.ts --strict"
   },
-  "fmt": { "include": ["scripts/gate/"] },
-  "lint": { "include": ["scripts/gate/"] }
+  "fmt": { "include": ["scripts/gate/", "scripts/audit/"] },
+  "lint": { "include": ["scripts/gate/", "scripts/audit/"] }
 }
