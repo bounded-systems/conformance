@@ -1,0 +1,25 @@
+deno.json
+  s_590a4cb0d433ca::t_ce7e8eb340d245 10-12,14-15
+.github/workflows/actions-audit.yml
+  s_590a4cb0d433ca::t_6575b64235bfb8 1-45
+README.md
+  s_590a4cb0d433ca::t_43919d01cbf582 30
+scripts/audit/actions.ts
+  s_590a4cb0d433ca::t_a51519629f3115 1-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "7bde49c95d09367d7d9e1823f5c19d8c531bfd1e",
+  "prompts": {},
+  "sessions": {
+    "s_590a4cb0d433ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b0655308-1b11-42b1-889b-668f5601293b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
