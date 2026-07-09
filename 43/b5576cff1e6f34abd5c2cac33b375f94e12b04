@@ -1,0 +1,22 @@
+.github/workflows/actions-audit.yml
+  s_590a4cb0d433ca::t_470bd798428095 3,9-12
+  s_590a4cb0d433ca::t_63c5f4d801a237 43,46
+README.md
+  s_590a4cb0d433ca::t_00f5372a228630 30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "43b5576cff1e6f34abd5c2cac33b375f94e12b04",
+  "prompts": {},
+  "sessions": {
+    "s_590a4cb0d433ca": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b0655308-1b11-42b1-889b-668f5601293b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Robert DeLanghe <1240090+bdelanghe@users.noreply.github.com>"
+    }
+  }
+}
