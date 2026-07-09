@@ -1,14 +1,15 @@
 name: actions-audit
 
-# Org-wide, REPORT-ONLY actions-conformance audit (scripts/audit/actions.ts).
+# Org-wide actions-conformance audit (scripts/audit/actions.ts).
 # Measures every repo's workflows against:
 #   R1a floating-branch ref to an org reusable workflow (hard tamper risk)
 #   R1b tag ref to an org reusable workflow (mutable; prefer SHA)
 #   R3  external action not SHA-pinned (org sha_pinning)
 #   R2  third-party actions outside the canonical reusable-workflow set (sprawl)
-# Exits 0 today (baseline the current state). Promote to a hard gate by switching
-# `deno task audit:actions` → `audit:actions:strict` (fails on R1a + R3) once the
-# floating-branch refs are cleaned up. Reads public repos with the default token.
+# BLOCKING on the two hard, objective rules (--strict fails on R1a + R3); R1b and R2
+# stay informational in the log. Baseline reached zero R1a+R3 (2026-07-08): the
+# notify-front-desk @main refs were retired and the last unpinned externals SHA-pinned.
+# Reads public repos with the default token.
 on:
   schedule:
     - cron: "23 6 * * *" # daily, after the conformance-gate audit
@@ -39,7 +40,7 @@ jobs:
       - uses: denoland/setup-deno@667a34cdef165d8d2b2e98dde39547c9daac7282 # v2.0.4
         with:
           deno-version: v2.x
-      - name: actions-conformance audit (report-only)
+      - name: actions-conformance audit (blocking on R1a + R3)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: deno task audit:actions
+        run: deno task audit:actions:strict
