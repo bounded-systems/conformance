@@ -1,7 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "imports": {
-    "@bounded-systems/drift-gate": "jsr:@bounded-systems/drift-gate@^0.1.0"
+    "@bounded-systems/drift-gate": "jsr:@bounded-systems/drift-gate@^0.3.0"
   },
   "tasks": {
     "gate": "deno run --allow-read --allow-env --allow-sys scripts/gate/gate.ts",
